@@ -13,3 +13,6 @@ class Config:
     )
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+    ALLOWED_EXTENSIONS = {"pdf", "doc", "docx"}

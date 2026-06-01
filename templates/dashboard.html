@@ -111,6 +111,115 @@
 
 </div>
 
+<!-- Resume Upload -->
+<div class="card shadow-sm p-4 mb-4">
+
+    <h4 class="mb-4">
+        Upload Resume
+    </h4>
+
+    <form id="resumeUploadForm">
+
+        <div class="mb-3">
+
+            <input
+                type="file"
+                id="resume"
+                class="form-control"
+                accept=".pdf,.doc,.docx"
+                required
+            >
+
+        </div>
+
+        <button
+            type="submit"
+            class="btn btn-success"
+        >
+            Upload Resume
+        </button>
+
+    </form>
+
+    <div
+        id="resumeMessage"
+        class="mt-3"
+    ></div>
+
+</div>
+
+<!-- AI Resume Analyzer -->
+<div class="card shadow-sm p-4 mb-4">
+
+    <h4 class="mb-4">
+        AI Resume Analyzer
+    </h4>
+
+    <form id="resumeAnalyzerForm">
+
+
+        <!-- Analytics Chart -->
+<div class="card shadow-sm p-4 mb-4">
+
+    <h4 class="mb-4">
+        Application Status Analytics
+    </h4>
+
+    <canvas id="analyticsChart"></canvas>
+
+</div>
+
+        <!-- Resume Upload -->
+        <div class="mb-3">
+
+            <label class="form-label">
+                Upload Resume
+            </label>
+
+            <input
+                type="file"
+                id="analyze_resume"
+                class="form-control"
+                accept=".pdf,.doc,.docx"
+                required
+            >
+
+        </div>
+
+        <!-- Job Description -->
+        <div class="mb-3">
+
+            <label class="form-label">
+                Job Description
+            </label>
+
+            <textarea
+                id="job_description"
+                class="form-control"
+                rows="6"
+                placeholder="Paste job description here..."
+                required
+            ></textarea>
+
+        </div>
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
+            Analyze Resume
+        </button>
+
+    </form>
+
+    <!-- Analysis Results -->
+    <div
+        id="analysisResult"
+        class="mt-4"
+    ></div>
+
+</div>
+
     <!-- Add Job Form -->
     <div class="card shadow-sm p-4">
 
@@ -263,6 +372,8 @@
 
 </div>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/static/js/app.js"></script>
 
 </body>

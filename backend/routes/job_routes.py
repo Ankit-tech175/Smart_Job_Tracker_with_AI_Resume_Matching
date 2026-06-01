@@ -1,4 +1,18 @@
+import os
+
+from flask import current_app
+
+from werkzeug.utils import secure_filename
+
+from backend.utils.file_handler import allowed_file
+
 from flask import Blueprint, request
+from nlp.parser import parse_resume
+
+from nlp.matcher import (
+    calculate_ats_score,
+    extract_job_skills
+)
 
 from flask_jwt_extended import (
     jwt_required,
@@ -270,6 +284,170 @@ def job_analytics():
                 "interview_count": interview_count,
                 "rejected_count": rejected_count,
                 "offer_count": offer_count
+            },
+            status_code=200
+        )
+
+    except Exception as e:
+
+        return error_response(str(e), 500)
+    
+    # =========================
+# UPLOAD RESUME
+# =========================
+@job_bp.route("/upload-resume", methods=["POST"])
+@jwt_required()
+def upload_resume():
+
+    try:
+
+        # Check file exists
+        if "resume" not in request.files:
+
+            return error_response(
+                "Resume file is required",
+                400
+            )
+
+        file = request.files["resume"]
+
+        # Check empty filename
+        if file.filename == "":
+
+            return error_response(
+                "No file selected",
+                400
+            )
+
+        # Validate file type
+        if not allowed_file(
+            file.filename,
+            current_app.config["ALLOWED_EXTENSIONS"]
+        ):
+
+            return error_response(
+                "Only PDF, DOC, DOCX files are allowed",
+                400
+            )
+
+        # Secure filename
+        filename = secure_filename(file.filename)
+
+        # Create upload path
+        upload_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            filename
+        )
+
+        # Save file
+        file.save(upload_path)
+
+        return success_response(
+            "Resume uploaded successfully",
+            data={
+                "filename": filename
+            },
+            status_code=201
+        )
+
+    except Exception as e:
+
+        return error_response(str(e), 500)
+    
+    # =========================
+# AI RESUME ANALYZER
+# =========================
+@job_bp.route("/analyze-resume", methods=["POST"])
+@jwt_required()
+def analyze_resume():
+
+    try:
+
+        # Check resume file exists
+        if "resume" not in request.files:
+
+            return error_response(
+                "Resume file is required",
+                400
+            )
+
+        # Get uploaded file
+        file = request.files["resume"]
+
+        # Validate filename
+        if file.filename == "":
+
+            return error_response(
+                "No file selected",
+                400
+            )
+
+        # Validate extension
+        if not allowed_file(
+            file.filename,
+            current_app.config["ALLOWED_EXTENSIONS"]
+        ):
+
+            return error_response(
+                "Only PDF, DOC, DOCX files are allowed",
+                400
+            )
+
+        # Get job description
+        job_description = request.form.get(
+            "job_description"
+        )
+
+        if not job_description:
+
+            return error_response(
+                "Job description is required",
+                400
+            )
+
+        # Secure filename
+        filename = secure_filename(
+            file.filename
+        )
+
+        # Save uploaded resume
+        upload_path = os.path.join(
+            current_app.config["UPLOAD_FOLDER"],
+            filename
+        )
+
+        file.save(upload_path)
+
+        # Parse resume
+        parsed_resume = parse_resume(
+            upload_path
+        )
+
+        resume_text = parsed_resume[
+            "resume_text"
+        ]
+
+        resume_skills = parsed_resume[
+            "skills"
+        ]
+
+        # Extract JD skills
+        job_skills = extract_job_skills(
+            job_description
+        )
+
+        # Calculate ATS score
+        ats_score = calculate_ats_score(
+            resume_text,
+            job_description
+        )
+
+        return success_response(
+            "Resume analyzed successfully",
+            data={
+                "ats_score": ats_score,
+                "resume_skills": resume_skills,
+                "job_skills": job_skills
             },
             status_code=200
         )
