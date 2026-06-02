@@ -1,18 +1,12 @@
 import os
 
-from flask import current_app
+from flask import (
+    Blueprint,
+    request,
+    current_app
+)
 
 from werkzeug.utils import secure_filename
-
-from backend.utils.file_handler import allowed_file
-
-from flask import Blueprint, request
-from nlp.parser import parse_resume
-
-from nlp.matcher import (
-    calculate_ats_score,
-    extract_job_skills
-)
 
 from flask_jwt_extended import (
     jwt_required,
@@ -24,12 +18,27 @@ from backend.database.extensions import db
 from backend.models.job_model import JobApplication
 from backend.models.user_model import User
 
+from backend.utils.file_handler import allowed_file
+
 from backend.utils.response import (
     success_response,
     error_response
 )
 
-job_bp = Blueprint("jobs", __name__)
+from nlp.parser import parse_resume
+
+from nlp.matcher import (
+    calculate_ats_score,
+    extract_job_skills,
+    analyze_skill_gap,
+    generate_resume_suggestions
+)
+
+
+job_bp = Blueprint(
+    "jobs",
+    __name__
+)
 
 
 # =========================
@@ -45,9 +54,12 @@ def add_job():
         current_user_id = get_jwt_identity()
 
         # Find current user
-        user = User.query.get(current_user_id)
+        user = User.query.get(
+            current_user_id
+        )
 
         if not user:
+
             return error_response(
                 "User not found",
                 404
@@ -55,14 +67,29 @@ def add_job():
 
         data = request.get_json()
 
-        company_name = data.get("company_name")
-        job_title = data.get("job_title")
-        job_link = data.get("job_link")
-        status = data.get("status")
-        notes = data.get("notes")
+        company_name = data.get(
+            "company_name"
+        )
+
+        job_title = data.get(
+            "job_title"
+        )
+
+        job_link = data.get(
+            "job_link"
+        )
+
+        status = data.get(
+            "status"
+        )
+
+        notes = data.get(
+            "notes"
+        )
 
         # Validate required fields
         if not company_name or not job_title:
+
             return error_response(
                 "Company name and job title are required",
                 400
@@ -80,6 +107,7 @@ def add_job():
 
         # Save to database
         db.session.add(new_job)
+
         db.session.commit()
 
         return success_response(
@@ -95,8 +123,13 @@ def add_job():
 
     except Exception as e:
 
-        return error_response(str(e), 500)
-    # =========================
+        return error_response(
+            str(e),
+            500
+        )
+
+
+# =========================
 # GET USER JOB APPLICATIONS
 # =========================
 @job_bp.route("/my-jobs", methods=["GET"])
@@ -108,28 +141,40 @@ def get_user_jobs():
         # Get logged-in user ID
         current_user_id = get_jwt_identity()
 
-        # Fetch jobs of current user
+        # Fetch user jobs
         jobs = JobApplication.query.filter_by(
             user_id=current_user_id
         ).order_by(
             JobApplication.created_at.desc()
         ).all()
 
-        # Convert jobs into JSON format
         jobs_data = []
 
         for job in jobs:
 
             jobs_data.append({
+
                 "id": job.id,
-                "company_name": job.company_name,
-                "job_title": job.job_title,
-                "job_link": job.job_link,
-                "status": job.status,
-                "notes": job.notes,
-                "created_at": job.created_at.strftime(
-                    "%d-%m-%Y %H:%M"
-                )
+
+                "company_name":
+                    job.company_name,
+
+                "job_title":
+                    job.job_title,
+
+                "job_link":
+                    job.job_link,
+
+                "status":
+                    job.status,
+
+                "notes":
+                    job.notes,
+
+                "created_at":
+                    job.created_at.strftime(
+                        "%d-%m-%Y %H:%M"
+                    )
             })
 
         return success_response(
@@ -140,21 +185,27 @@ def get_user_jobs():
 
     except Exception as e:
 
-        return error_response(str(e), 500)
-    
-    # =========================
+        return error_response(
+            str(e),
+            500
+        )
+
+
+# =========================
 # UPDATE JOB STATUS
 # =========================
-@job_bp.route("/update-status/<int:job_id>", methods=["PUT"])
+@job_bp.route(
+    "/update-status/<int:job_id>",
+    methods=["PUT"]
+)
 @jwt_required()
 def update_job_status(job_id):
 
     try:
 
-        # Get logged-in user ID
         current_user_id = get_jwt_identity()
 
-        # Find job belonging to current user
+        # Find user job
         job = JobApplication.query.filter_by(
             id=job_id,
             user_id=current_user_id
@@ -179,7 +230,7 @@ def update_job_status(job_id):
                 400
             )
 
-        # Update status
+        # Update job status
         job.status = new_status
 
         db.session.commit()
@@ -195,21 +246,27 @@ def update_job_status(job_id):
 
     except Exception as e:
 
-        return error_response(str(e), 500)
-    
-    # =========================
+        return error_response(
+            str(e),
+            500
+        )
+
+
+# =========================
 # DELETE JOB APPLICATION
 # =========================
-@job_bp.route("/delete/<int:job_id>", methods=["DELETE"])
+@job_bp.route(
+    "/delete/<int:job_id>",
+    methods=["DELETE"]
+)
 @jwt_required()
 def delete_job(job_id):
 
     try:
 
-        # Get logged-in user ID
         current_user_id = get_jwt_identity()
 
-        # Find job belonging to current user
+        # Find user job
         job = JobApplication.query.filter_by(
             id=job_id,
             user_id=current_user_id
@@ -234,9 +291,13 @@ def delete_job(job_id):
 
     except Exception as e:
 
-        return error_response(str(e), 500)
-    
-    # =========================
+        return error_response(
+            str(e),
+            500
+        )
+
+
+# =========================
 # JOB APPLICATION ANALYTICS
 # =========================
 @job_bp.route("/analytics", methods=["GET"])
@@ -245,15 +306,14 @@ def job_analytics():
 
     try:
 
-        # Get logged-in user ID
         current_user_id = get_jwt_identity()
 
-        # Fetch all user jobs
+        # Fetch all jobs
         jobs = JobApplication.query.filter_by(
             user_id=current_user_id
         ).all()
 
-        # Calculate analytics
+        # Analytics
         total_applications = len(jobs)
 
         interview_count = len([
@@ -279,23 +339,39 @@ def job_analytics():
         return success_response(
             "Analytics fetched successfully",
             data={
-                "total_applications": total_applications,
-                "applied_count": applied_count,
-                "interview_count": interview_count,
-                "rejected_count": rejected_count,
-                "offer_count": offer_count
+                "total_applications":
+                    total_applications,
+
+                "applied_count":
+                    applied_count,
+
+                "interview_count":
+                    interview_count,
+
+                "rejected_count":
+                    rejected_count,
+
+                "offer_count":
+                    offer_count
             },
             status_code=200
         )
 
     except Exception as e:
 
-        return error_response(str(e), 500)
-    
-    # =========================
+        return error_response(
+            str(e),
+            500
+        )
+
+
+# =========================
 # UPLOAD RESUME
 # =========================
-@job_bp.route("/upload-resume", methods=["POST"])
+@job_bp.route(
+    "/upload-resume",
+    methods=["POST"]
+)
 @jwt_required()
 def upload_resume():
 
@@ -311,7 +387,7 @@ def upload_resume():
 
         file = request.files["resume"]
 
-        # Check empty filename
+        # Validate filename
         if file.filename == "":
 
             return error_response(
@@ -319,10 +395,12 @@ def upload_resume():
                 400
             )
 
-        # Validate file type
+        # Validate file extension
         if not allowed_file(
             file.filename,
-            current_app.config["ALLOWED_EXTENSIONS"]
+            current_app.config[
+                "ALLOWED_EXTENSIONS"
+            ]
         ):
 
             return error_response(
@@ -331,11 +409,15 @@ def upload_resume():
             )
 
         # Secure filename
-        filename = secure_filename(file.filename)
+        filename = secure_filename(
+            file.filename
+        )
 
         # Create upload path
         upload_path = os.path.join(
-            current_app.config["UPLOAD_FOLDER"],
+            current_app.config[
+                "UPLOAD_FOLDER"
+            ],
             filename
         )
 
@@ -352,18 +434,25 @@ def upload_resume():
 
     except Exception as e:
 
-        return error_response(str(e), 500)
-    
-    # =========================
+        return error_response(
+            str(e),
+            500
+        )
+
+
+# =========================
 # AI RESUME ANALYZER
 # =========================
-@job_bp.route("/analyze-resume", methods=["POST"])
+@job_bp.route(
+    "/analyze-resume",
+    methods=["POST"]
+)
 @jwt_required()
 def analyze_resume():
 
     try:
 
-        # Check resume file exists
+        # Validate uploaded file
         if "resume" not in request.files:
 
             return error_response(
@@ -371,10 +460,8 @@ def analyze_resume():
                 400
             )
 
-        # Get uploaded file
         file = request.files["resume"]
 
-        # Validate filename
         if file.filename == "":
 
             return error_response(
@@ -382,10 +469,12 @@ def analyze_resume():
                 400
             )
 
-        # Validate extension
+        # Validate file extension
         if not allowed_file(
             file.filename,
-            current_app.config["ALLOWED_EXTENSIONS"]
+            current_app.config[
+                "ALLOWED_EXTENSIONS"
+            ]
         ):
 
             return error_response(
@@ -410,12 +499,15 @@ def analyze_resume():
             file.filename
         )
 
-        # Save uploaded resume
+        # Create upload path
         upload_path = os.path.join(
-            current_app.config["UPLOAD_FOLDER"],
+            current_app.config[
+                "UPLOAD_FOLDER"
+            ],
             filename
         )
 
+        # Save resume
         file.save(upload_path)
 
         # Parse resume
@@ -431,27 +523,67 @@ def analyze_resume():
             "skills"
         ]
 
-        # Extract JD skills
+        # Extract job description skills
         job_skills = extract_job_skills(
             job_description
         )
 
-        # Calculate ATS score
+       # Calculate ATS score
+       # using extracted skills
         ats_score = calculate_ats_score(
-            resume_text,
-            job_description
-        )
+       resume_skills,
+       job_skills
+    )
 
+        # Analyze missing skills
+        skill_analysis = analyze_skill_gap(
+            resume_skills,
+            job_skills
+        )
+        # Generate AI suggestions
+        recommendations = generate_resume_suggestions(
+        skill_analysis["missing_skills"],
+         ats_score
+       )
+        
         return success_response(
             "Resume analyzed successfully",
             data={
-                "ats_score": ats_score,
-                "resume_skills": resume_skills,
-                "job_skills": job_skills
+
+                # ATS Score
+                "ats_score":
+                    ats_score,
+
+                # Resume Skills
+                "resume_skills":
+                    resume_skills,
+
+                # Job Description Skills
+                "job_skills":
+                    job_skills,
+
+                # Matched Skills
+                "matched_skills":
+                    skill_analysis[
+                        "matched_skills"
+                    ],
+
+                # Missing Skills
+"missing_skills":
+    skill_analysis[
+        "missing_skills"
+    ],
+
+# AI Recommendations
+"recommendations":
+    recommendations
             },
             status_code=200
         )
 
     except Exception as e:
 
-        return error_response(str(e), 500)
+        return error_response(
+            str(e),
+            500
+        )

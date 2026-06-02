@@ -708,6 +708,42 @@ if (resumeAnalyzerForm) {
                     "analysisResult"
                 );
 
+            // Validate input
+            if (!resumeFile || !jobDescription) {
+
+                resultDiv.innerHTML = `
+
+                    <div class="alert alert-danger mt-3">
+                        Please upload resume and paste job description.
+                    </div>
+
+                `;
+
+                return;
+            }
+
+            // Loading UI
+            resultDiv.innerHTML = `
+
+                <div class="card shadow-sm border-0 p-4 mt-4 text-center">
+
+                    <div
+                        class="spinner-border text-primary mb-3"
+                        role="status"
+                    ></div>
+
+                    <h5 class="fw-semibold">
+                        AI is analyzing your resume...
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Matching skills with job description
+                    </p>
+
+                </div>
+
+            `;
+
             // Create form data
             const formData = new FormData();
 
@@ -741,45 +777,225 @@ if (resumeAnalyzerForm) {
                 const data =
                     await response.json();
 
-                if (data.success) {
+                // Success
+              if (data.success) {
+
+    // =========================
+    // ATS SCORE LOGIC
+    // =========================
+
+    const atsScore =
+        data.data.ats_score;
+
+    let scoreClass =
+        "poor-score";
+
+    let scoreLabel =
+        "Poor Match";
+
+    // Excellent Match
+    if (atsScore >= 80) {
+
+        scoreClass =
+            "excellent-score";
+
+        scoreLabel =
+            "Excellent Match";
+    }
+
+    // Moderate Match
+    else if (atsScore >= 60) {
+
+        scoreClass =
+            "moderate-score";
+
+        scoreLabel =
+            "Moderate Match";
+    }
+
+    // Poor Match
+    else {
+
+        scoreClass =
+            "poor-score";
+
+        scoreLabel =
+            "Needs Improvement";
+    }
+
+    resultDiv.innerHTML = `
+
+<div class="card shadow-lg border-0 p-4 mt-4 ai-result-card">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+
+        <h3 class="fw-bold mb-3">
+            ATS Match Score
+        </h3>
+
+        <div class="ats-score-circle ${scoreClass}">
+
+            ${atsScore}%
+
+        </div>
+
+        <div class="mt-3">
+
+            <span class="ats-label ${scoreClass}">
+
+                ${scoreLabel}
+
+            </span>
+
+        </div>
+
+    </div>
+
+    <!-- Matched Skills -->
+    <div class="mb-4">
+
+        <h5 class="text-success fw-bold mb-3">
+            Matched Skills
+        </h5>
+
+        <div class="skills-container">
+
+            ${data.data.matched_skills.length > 0
+
+                ? data.data.matched_skills.map(
+                    skill => `
+                        <span class="skill-badge matched-skill">
+                            ${skill}
+                        </span>
+                    `
+                ).join("")
+
+                : `
+                    <span class="text-muted">
+                        No matched skills found
+                    </span>
+                `
+            }
+
+        </div>
+
+    </div>
+
+    <!-- Missing Skills -->
+    <div class="mb-4">
+
+        <h5 class="text-danger fw-bold mb-3">
+            Missing Skills
+        </h5>
+
+        <div class="skills-container">
+
+            ${data.data.missing_skills.length > 0
+
+                ? data.data.missing_skills.map(
+                    skill => `
+                        <span class="skill-badge missing-skill">
+                            ${skill}
+                        </span>
+                    `
+                ).join("")
+
+                : `
+                    <span class="text-muted">
+                        No missing skills
+                    </span>
+                `
+            }
+
+        </div>
+
+    </div>
+
+      <!-- Resume Skills -->
+    <div class="mb-4">
+
+        <h5 class="fw-bold mb-3">
+            Resume Skills
+        </h5>
+
+        <div class="skills-container">
+
+            ${data.data.resume_skills.length > 0
+
+                ? data.data.resume_skills.map(
+                    skill => `
+                        <span class="skill-badge default-skill">
+                            ${skill}
+                        </span>
+                    `
+                ).join("")
+
+                : `
+                    <span class="text-muted">
+                        No skills extracted
+                    </span>
+                `
+            }
+
+        </div>
+
+    </div>
+
+    <!-- AI Recommendations -->
+    <div class="mt-5">
+
+        <h4 class="fw-bold mb-4">
+            AI Resume Recommendations
+        </h4>
+
+        <div class="recommendation-container">
+
+            ${data.data.recommendations.length > 0
+
+                ? data.data.recommendations.map(
+                    recommendation => `
+
+<div class="recommendation-card">
+
+    <div class="recommendation-icon">
+
+        💡
+
+    </div>
+
+    <div class="recommendation-text">
+
+        ${recommendation}
+
+    </div>
+
+</div>
+
+                    `
+                ).join("")
+
+                : `
+
+                    <div class="text-muted">
+                        No recommendations available
+                    </div>
+
+                `
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+    `;
+} else {
 
                     resultDiv.innerHTML = `
 
-                        <div class="card shadow-sm p-4 mt-4">
-
-                            <h4 class="mb-3">
-                                ATS Match Result
-                            </h4>
-
-                            <h2 class="text-success mb-4">
-                                ${data.data.ats_score}%
-                            </h2>
-
-                            <h5>
-                                Resume Skills
-                            </h5>
-
-                            <p>
-                                ${data.data.resume_skills.join(", ")}
-                            </p>
-
-                            <h5 class="mt-3">
-                                Job Description Skills
-                            </h5>
-
-                            <p>
-                                ${data.data.job_skills.join(", ")}
-                            </p>
-
-                        </div>
-
-                    `;
-
-                } else {
-
-                    resultDiv.innerHTML = `
-
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger mt-4">
                             ${data.message}
                         </div>
 
@@ -795,7 +1011,7 @@ if (resumeAnalyzerForm) {
 
                 resultDiv.innerHTML = `
 
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger mt-4">
                         AI analysis failed
                     </div>
 

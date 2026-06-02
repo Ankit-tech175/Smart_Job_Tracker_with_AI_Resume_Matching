@@ -10,9 +10,11 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Dashboard</title>
+    <title>
+        AI Job Tracker Dashboard
+    </title>
 
-    <!-- Bootstrap 5 -->
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
@@ -28,17 +30,36 @@
 
 <body>
 
-<div class="container mt-5">
+<div class="container py-5">
 
-    <!-- Dashboard Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- =========================
+         DASHBOARD HEADER
+    ========================== -->
 
-        <h2>
-            Job Application Dashboard
-        </h2>
+    <div
+        class="d-flex flex-column flex-md-row
+        justify-content-between align-items-md-center
+        mb-5"
+    >
+
+        <div>
+
+            <h1 class="fw-bold mb-2">
+                AI Job Tracker
+            </h1>
+
+            <p class="text-muted mb-0">
+
+                Track applications,
+                analyze resumes,
+                and improve ATS scores.
+
+            </p>
+
+        </div>
 
         <button
-            class="btn btn-danger"
+            class="btn btn-danger mt-3 mt-md-0 px-4"
             onclick="logoutUser()"
         >
             Logout
@@ -46,192 +67,259 @@
 
     </div>
 
-    <!-- Analytics Cards -->
-<div class="row mb-4">
 
-    <!-- Total Applications -->
-    <div class="col-md-3">
+    <!-- =========================
+         ANALYTICS CARDS
+    ========================== -->
 
-        <div class="card shadow-sm text-center p-3">
+    <div class="row g-4 mb-5">
 
-            <h5>Total Applications</h5>
+        <!-- Total Applications -->
+        <div class="col-md-3">
 
-            <h2 id="totalApplications">
-                0
-            </h2>
+            <div class="card analytics-card">
+
+                <h6 class="text-muted">
+                    Total Applications
+                </h6>
+
+                <h2 id="totalApplications">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+        <!-- Applied -->
+        <div class="col-md-3">
+
+            <div class="card analytics-card">
+
+                <h6 class="text-muted">
+                    Applied
+                </h6>
+
+                <h2 id="appliedCount">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+        <!-- Interviews -->
+        <div class="col-md-3">
+
+            <div class="card analytics-card">
+
+                <h6 class="text-muted">
+                    Interviews
+                </h6>
+
+                <h2 id="interviewCount">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+        <!-- Offers -->
+        <div class="col-md-3">
+
+            <div class="card analytics-card">
+
+                <h6 class="text-muted">
+                    Offers
+                </h6>
+
+                <h2 id="offerCount">
+                    0
+                </h2>
+
+            </div>
 
         </div>
 
     </div>
 
-    <!-- Applied -->
-    <div class="col-md-3">
 
-        <div class="card shadow-sm text-center p-3">
+    <!-- =========================
+         ANALYTICS CHART
+    ========================== -->
 
-            <h5>Applied</h5>
+    <div class="card p-4 mb-5">
 
-            <h2 id="appliedCount">
-                0
-            </h2>
-
-        </div>
-
-    </div>
-
-    <!-- Interviews -->
-    <div class="col-md-3">
-
-        <div class="card shadow-sm text-center p-3">
-
-            <h5>Interviews</h5>
-
-            <h2 id="interviewCount">
-                0
-            </h2>
-
-        </div>
-
-    </div>
-
-    <!-- Offers -->
-    <div class="col-md-3">
-
-        <div class="card shadow-sm text-center p-3">
-
-            <h5>Offers</h5>
-
-            <h2 id="offerCount">
-                0
-            </h2>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Resume Upload -->
-<div class="card shadow-sm p-4 mb-4">
-
-    <h4 class="mb-4">
-        Upload Resume
-    </h4>
-
-    <form id="resumeUploadForm">
-
-        <div class="mb-3">
-
-            <input
-                type="file"
-                id="resume"
-                class="form-control"
-                accept=".pdf,.doc,.docx"
-                required
-            >
-
-        </div>
-
-        <button
-            type="submit"
-            class="btn btn-success"
+        <div
+            class="d-flex justify-content-between
+            align-items-center mb-4"
         >
-            Upload Resume
-        </button>
 
-    </form>
+            <div>
 
-    <div
-        id="resumeMessage"
-        class="mt-3"
-    ></div>
+                <h4 class="fw-bold mb-1">
+                    Application Analytics
+                </h4>
 
-</div>
+                <p class="text-muted mb-0">
+                    Visual breakdown of job statuses
+                </p>
 
-<!-- AI Resume Analyzer -->
-<div class="card shadow-sm p-4 mb-4">
+            </div>
 
-    <h4 class="mb-4">
-        AI Resume Analyzer
-    </h4>
+        </div>
 
-    <form id="resumeAnalyzerForm">
+        <canvas id="analyticsChart"></canvas>
+
+    </div>
 
 
-        <!-- Analytics Chart -->
-<div class="card shadow-sm p-4 mb-4">
+    <!-- =========================
+         AI RESUME ANALYZER
+    ========================== -->
 
-    <h4 class="mb-4">
-        Application Status Analytics
-    </h4>
+    <div class="card p-4 mb-5">
 
-    <canvas id="analyticsChart"></canvas>
+        <div class="mb-4">
 
-</div>
+            <h4 class="fw-bold mb-1">
+                AI Resume Analyzer
+            </h4>
 
-        <!-- Resume Upload -->
-        <div class="mb-3">
+            <p class="text-muted mb-0">
+                Analyze ATS compatibility with job descriptions
+            </p>
 
-            <label class="form-label">
-                Upload Resume
-            </label>
+        </div>
 
-            <input
-                type="file"
-                id="analyze_resume"
-                class="form-control"
-                accept=".pdf,.doc,.docx"
-                required
+        <form id="resumeAnalyzerForm">
+
+            <!-- Resume Upload -->
+            <div class="mb-3">
+
+                <label class="form-label fw-semibold">
+                    Upload Resume
+                </label>
+
+                <input
+                    type="file"
+                    id="analyze_resume"
+                    class="form-control"
+                    accept=".pdf,.doc,.docx"
+                    required
+                >
+
+            </div>
+
+            <!-- Job Description -->
+            <div class="mb-4">
+
+                <label class="form-label fw-semibold">
+                    Job Description
+                </label>
+
+                <textarea
+                    id="job_description"
+                    class="form-control"
+                    rows="6"
+                    placeholder="Paste job description here..."
+                    required
+                ></textarea>
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary px-4"
             >
+                Analyze Resume
+            </button>
+
+        </form>
+
+        <!-- Analysis Results -->
+        <div
+            id="analysisResult"
+            class="mt-4"
+        ></div>
+
+    </div>
+
+
+    <!-- =========================
+         RESUME UPLOAD
+    ========================== -->
+
+    <div class="card p-4 mb-5">
+
+        <div class="mb-4">
+
+            <h4 class="fw-bold mb-1">
+                Resume Upload
+            </h4>
+
+            <p class="text-muted mb-0">
+                Store resumes securely for analysis
+            </p>
 
         </div>
 
-        <!-- Job Description -->
-        <div class="mb-3">
-
-            <label class="form-label">
-                Job Description
-            </label>
-
-            <textarea
-                id="job_description"
-                class="form-control"
-                rows="6"
-                placeholder="Paste job description here..."
-                required
-            ></textarea>
-
-        </div>
-
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Analyze Resume
-        </button>
-
-    </form>
-
-    <!-- Analysis Results -->
-    <div
-        id="analysisResult"
-        class="mt-4"
-    ></div>
-
-</div>
-
-    <!-- Add Job Form -->
-    <div class="card shadow-sm p-4">
-
-        <h4 class="mb-4">
-            Add Job Application
-        </h4>
-
-        <form id="addJobForm">
+        <form id="resumeUploadForm">
 
             <div class="mb-3">
 
-                <label class="form-label">
+                <input
+                    type="file"
+                    id="resume"
+                    class="form-control"
+                    accept=".pdf,.doc,.docx"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-success px-4"
+            >
+                Upload Resume
+            </button>
+
+        </form>
+
+        <div
+            id="resumeMessage"
+            class="mt-3"
+        ></div>
+
+    </div>
+
+
+    <!-- =========================
+         ADD JOB APPLICATION
+    ========================== -->
+
+    <div class="card p-4 mb-5">
+
+        <div class="mb-4">
+
+            <h4 class="fw-bold mb-1">
+                Add Job Application
+            </h4>
+
+            <p class="text-muted mb-0">
+                Manage and organize job applications
+            </p>
+
+        </div>
+
+        <form id="addJobForm">
+
+            <!-- Company -->
+            <div class="mb-3">
+
+                <label class="form-label fw-semibold">
                     Company Name
                 </label>
 
@@ -245,9 +333,10 @@
 
             </div>
 
+            <!-- Job Title -->
             <div class="mb-3">
 
-                <label class="form-label">
+                <label class="form-label fw-semibold">
                     Job Title
                 </label>
 
@@ -261,9 +350,10 @@
 
             </div>
 
+            <!-- Job Link -->
             <div class="mb-3">
 
-                <label class="form-label">
+                <label class="form-label fw-semibold">
                     Job Link
                 </label>
 
@@ -276,9 +366,10 @@
 
             </div>
 
+            <!-- Status -->
             <div class="mb-3">
 
-                <label class="form-label">
+                <label class="form-label fw-semibold">
                     Status
                 </label>
 
@@ -286,17 +377,31 @@
                     id="status"
                     class="form-select"
                 >
-                    <option value="Applied">Applied</option>
-                    <option value="Interview">Interview</option>
-                    <option value="Rejected">Rejected</option>
-                    <option value="Offer">Offer</option>
+
+                    <option value="Applied">
+                        Applied
+                    </option>
+
+                    <option value="Interview">
+                        Interview
+                    </option>
+
+                    <option value="Rejected">
+                        Rejected
+                    </option>
+
+                    <option value="Offer">
+                        Offer
+                    </option>
+
                 </select>
 
             </div>
 
-            <div class="mb-3">
+            <!-- Notes -->
+            <div class="mb-4">
 
-                <label class="form-label">
+                <label class="form-label fw-semibold">
                     Notes
                 </label>
 
@@ -311,69 +416,85 @@
 
             <button
                 type="submit"
-                class="btn btn-primary"
+                class="btn btn-primary px-4"
             >
                 Add Job
             </button>
 
         </form>
 
-        <!-- Message Area -->
+        <!-- Message -->
         <div
             id="jobMessage"
             class="mt-3"
         ></div>
 
     </div>
-    <!-- Job Applications Table -->
-<div class="card shadow-sm p-4 mt-4">
 
-    <h4 class="mb-4">
-        My Job Applications
-    </h4>
 
-    <div class="table-responsive">
+    <!-- =========================
+         JOB APPLICATION TABLE
+    ========================== -->
 
-        <table class="table table-bordered table-hover">
+    <div class="card p-4">
 
-            <thead class="table-dark">
+        <div class="mb-4">
 
-                <tr>
+            <h4 class="fw-bold mb-1">
+                My Job Applications
+            </h4>
 
-                    <th>Company</th>
+            <p class="text-muted mb-0">
+                Track and manage application progress
+            </p>
 
-                    <th>Job Title</th>
+        </div>
 
-                    <th>Status</th>
+        <div class="table-responsive">
 
-                    <th>Update Status</th>
+            <table class="table table-hover align-middle">
 
-                    <th>Applied Date</th>
+                <thead>
 
-                    <th>Notes</th>
+                    <tr>
 
-                    <th>Action</th>
+                        <th>Company</th>
 
-                </tr>
+                        <th>Job Title</th>
 
-            </thead>
+                        <th>Status</th>
 
-            <tbody id="jobsTableBody">
+                        <th>Update</th>
 
-                <!-- Dynamic Jobs -->
+                        <th>Date</th>
 
-            </tbody>
+                        <th>Notes</th>
 
-        </table>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="jobsTableBody">
+
+                    <!-- Dynamic Data -->
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
 </div>
 
-</div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Custom JS -->
 <script src="/static/js/app.js"></script>
 
 </body>
