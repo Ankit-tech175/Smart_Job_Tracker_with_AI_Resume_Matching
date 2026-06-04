@@ -550,3 +550,69 @@ body {
         font-size: 1.8rem;
     }
 }
+
+.pipeline-card {
+
+    border: none;
+    border-radius: 20px;
+}
+
+.pipeline-item {
+
+    margin-bottom: 25px;
+}
+
+.pipeline-header {
+
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.pipeline-bar {
+
+    height: 14px;
+    background: #e9ecef;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.pipeline-fill {
+
+    height: 100%;
+    border-radius: 999px;
+    transition: width 1s ease;
+}
+
+.applied-fill {
+
+    background: #3b82f6;
+}
+
+.interview-fill {
+
+    background: #f59e0b;
+}
+
+.rejected-fill {
+
+    background: #ef4444;
+}
+
+.offer-fill {
+
+    background: #10b981;
+}
+
+.pipeline-stats {
+
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 15px;
+}

@@ -1,3 +1,4 @@
+
 // =========================
 // REGISTER FORM
 // =========================
@@ -254,10 +255,10 @@ async function fetchUserJobs() {
     // Redirect if token missing
     if (!token) {
 
-        window.location.href = "/login";
+    console.log("No token found");
 
-        return;
-    }
+    return;
+}
 
     try {
 
@@ -383,11 +384,21 @@ async function fetchUserJobs() {
 
 
 // =========================
-// LOAD JOBS ON DASHBOARD
+// LOAD JOBS ONLY ON DASHBOARD
 // =========================
 
-fetchUserJobs();
-fetchAnalytics();
+if (document.getElementById("jobsTableBody")) {
+
+    fetchUserJobs();
+}
+
+if (
+    document.getElementById("analyticsChart") ||
+    document.getElementById("totalApplications")
+) {
+
+    fetchAnalytics();
+}
 
 // =========================
 // UPDATE JOB STATUS
@@ -515,10 +526,10 @@ async function fetchAnalytics() {
     // Redirect if token missing
     if (!token) {
 
-        window.location.href = "/login";
+    console.log("No token found");
 
-        return;
-    }
+    return;
+}
 
     try {
 
@@ -1035,74 +1046,143 @@ let analyticsChart;
 
 function renderAnalyticsChart(data) {
 
-    const chartCanvas =
+    const container =
         document.getElementById(
-            "analyticsChart"
+            "pipelineAnalytics"
         );
 
-    // Skip if chart not found
-    if (!chartCanvas) {
-        return;
-    }
+    if (!container) return;
 
-    // Destroy old chart before re-render
-    if (analyticsChart) {
+    const total =
+        data.total_applications || 1;
 
-        analyticsChart.destroy();
-    }
+    const appliedPercent =
+        Math.round(
+            (data.applied_count / total) * 100
+        );
 
-    analyticsChart = new Chart(
-        chartCanvas,
-        {
+    const interviewPercent =
+        Math.round(
+            (data.interview_count / total) * 100
+        );
 
-            type: "doughnut",
+    const rejectedPercent =
+        Math.round(
+            (data.rejected_count / total) * 100
+        );
 
-            data: {
+    const offerPercent =
+        Math.round(
+            (data.offer_count / total) * 100
+        );
 
-                labels: [
-                    "Applied",
-                    "Interview",
-                    "Rejected",
-                    "Offer"
-                ],
+    container.innerHTML = `
 
-                datasets: [
-                    {
+<div class="pipeline-item">
 
-                        label:
-                            "Job Applications",
+    <div class="pipeline-header">
 
-                        data: [
-                            data.applied_count,
-                            data.interview_count,
-                            data.rejected_count,
-                            data.offer_count
-                        ],
+        <span>🔵 Applied</span>
 
-                        backgroundColor: [
-                            "#0d6efd",
-                            "#ffc107",
-                            "#dc3545",
-                            "#198754"
-                        ],
+        <span>
+            ${data.applied_count} Jobs • ${appliedPercent}%
+        </span>
 
-                        borderWidth: 1
-                    }
-                ]
-            },
+    </div>
 
-            options: {
+    <div class="pipeline-bar">
 
-                responsive: true,
+        <div
+            class="pipeline-fill applied-fill"
+            style="width:${appliedPercent}%"
+        ></div>
 
-                plugins: {
+    </div>
 
-                    legend: {
+</div>
 
-                        position: "bottom"
-                    }
-                }
-            }
-        }
-    );
+<div class="pipeline-item">
+
+    <div class="pipeline-header">
+
+        <span>🟠 Interview</span>
+
+        <span>
+            ${data.interview_count} Jobs • ${interviewPercent}%
+        </span>
+
+    </div>
+
+    <div class="pipeline-bar">
+
+        <div
+            class="pipeline-fill interview-fill"
+            style="width:${interviewPercent}%"
+        ></div>
+
+    </div>
+
+</div>
+
+<div class="pipeline-item">
+
+    <div class="pipeline-header">
+
+        <span>🔴 Rejected</span>
+
+        <span>
+            ${data.rejected_count} Jobs • ${rejectedPercent}%
+        </span>
+
+    </div>
+
+    <div class="pipeline-bar">
+
+        <div
+            class="pipeline-fill rejected-fill"
+            style="width:${rejectedPercent}%"
+        ></div>
+
+    </div>
+
+</div>
+
+<div class="pipeline-item">
+
+    <div class="pipeline-header">
+
+        <span>🟢 Offer</span>
+
+        <span>
+            ${data.offer_count} Jobs • ${offerPercent}%
+        </span>
+
+    </div>
+
+    <div class="pipeline-bar">
+
+        <div
+            class="pipeline-fill offer-fill"
+            style="width:${offerPercent}%"
+        ></div>
+
+    </div>
+
+</div>
+
+<div class="pipeline-stats">
+
+    <div>
+        Interview Rate:
+        <strong>${interviewPercent}%</strong>
+    </div>
+
+    <div>
+        Offer Rate:
+        <strong>${offerPercent}%</strong>
+    </div>
+
+</div>
+
+    `;
 }
