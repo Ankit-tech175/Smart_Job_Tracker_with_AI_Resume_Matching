@@ -7,7 +7,7 @@ def success_response(message, data=None, status_code=200):
         "message": message
     }
 
-    if data:
+    if data is not None:
         response["data"] = data
 
     return jsonify(response), status_code

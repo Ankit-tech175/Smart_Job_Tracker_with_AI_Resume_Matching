@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 instance/
 .env
+.vscode/
+
+# User-uploaded resumes
+uploads/*
+!uploads/.gitkeep

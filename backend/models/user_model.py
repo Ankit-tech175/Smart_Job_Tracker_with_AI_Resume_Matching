@@ -42,6 +42,12 @@ class User(db.Model):
         cascade="all, delete-orphan"
     )
 
+    resume_analyses = db.relationship(
+      "ResumeAnalysis",
+       backref="user",
+       lazy=True,
+       cascade="all, delete-orphan"
+   )
     def __repr__(self):
 
         return f"<User {self.username}>"

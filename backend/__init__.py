@@ -60,12 +60,8 @@ def create_app():
     )
 
     # Create database tables
-    with app.app_context():
-
-        db.create_all()
-
-        print(
-            "Database Connected Successfully"
-        )
+    print(
+       "Database Connected Successfully"
+   )
 
     return app

@@ -1,9 +1,12 @@
 import os
+import csv
+import io
 
 from flask import (
     Blueprint,
     request,
-    current_app
+    current_app,
+    Response
 )
 
 from werkzeug.utils import secure_filename
@@ -17,6 +20,7 @@ from backend.database.extensions import db
 
 from backend.models.job_model import JobApplication
 from backend.models.user_model import User
+from backend.models.resume_analysis import ResumeAnalysis
 
 from backend.utils.file_handler import allowed_file
 
@@ -181,6 +185,73 @@ def get_user_jobs():
             "Jobs fetched successfully",
             data=jobs_data,
             status_code=200
+        )
+
+    except Exception as e:
+
+        return error_response(
+            str(e),
+            500
+        )
+
+
+# =========================
+# EXPORT JOBS AS CSV
+# =========================
+@job_bp.route("/export-csv", methods=["GET"])
+@jwt_required()
+def export_jobs_csv():
+
+    try:
+
+        # Get logged-in user ID
+        current_user_id = get_jwt_identity()
+
+        # Fetch user jobs
+        jobs = JobApplication.query.filter_by(
+            user_id=current_user_id
+        ).order_by(
+            JobApplication.created_at.desc()
+        ).all()
+
+        # Build CSV in-memory
+        output = io.StringIO()
+
+        writer = csv.writer(output)
+
+        writer.writerow([
+            "Company Name",
+            "Job Title",
+            "Job Link",
+            "Status",
+            "Notes",
+            "Applied On"
+        ])
+
+        for job in jobs:
+
+            writer.writerow([
+                job.company_name,
+                job.job_title,
+                job.job_link or "",
+                job.status,
+                job.notes or "",
+                job.created_at.strftime(
+                    "%d-%m-%Y %H:%M"
+                )
+            ])
+
+        csv_data = output.getvalue()
+
+        output.close()
+
+        return Response(
+            csv_data,
+            mimetype="text/csv",
+            headers={
+                "Content-Disposition":
+                    "attachment; filename=job_applications.csv"
+            }
         )
 
     except Exception as e:
@@ -515,10 +586,6 @@ def analyze_resume():
             upload_path
         )
 
-        resume_text = parsed_resume[
-            "resume_text"
-        ]
-
         resume_skills = parsed_resume[
             "skills"
         ]
@@ -528,55 +595,57 @@ def analyze_resume():
             job_description
         )
 
-       # Calculate ATS score
-       # using extracted skills
+        # Calculate ATS score
+        # using extracted skills
         ats_score = calculate_ats_score(
-       resume_skills,
-       job_skills
-    )
+        resume_skills,
+        job_skills
+        )   
 
         # Analyze missing skills
         skill_analysis = analyze_skill_gap(
             resume_skills,
             job_skills
         )
+
         # Generate AI suggestions
         recommendations = generate_resume_suggestions(
-        skill_analysis["missing_skills"],
-         ats_score
-       )
-        
+            skill_analysis["missing_skills"],
+            ats_score
+        )
+
+        # Save analysis history
+        current_user_id = get_jwt_identity()
+
+        analysis = ResumeAnalysis(
+            user_id=current_user_id,
+            ats_score=ats_score,
+            matched_skills=",".join(
+            skill_analysis["matched_skills"]
+            ),
+            missing_skills=",".join(
+                skill_analysis["missing_skills"]
+           ),
+           recommendations="|||".join(
+                recommendations
+            )
+        )
+
+        db.session.add(analysis)
+        db.session.commit() 
+
         return success_response(
             "Resume analyzed successfully",
             data={
-
-                # ATS Score
-                "ats_score":
-                    ats_score,
-
-                # Resume Skills
-                "resume_skills":
-                    resume_skills,
-
-                # Job Description Skills
-                "job_skills":
-                    job_skills,
-
-                # Matched Skills
+                "ats_score": ats_score,
+                "resume_skills": resume_skills,
+                "job_skills": job_skills,
                 "matched_skills":
-                    skill_analysis[
-                        "matched_skills"
-                    ],
-
-                # Missing Skills
-"missing_skills":
-    skill_analysis[
-        "missing_skills"
-    ],
-
-# AI Recommendations
-"recommendations":
-    recommendations
+                    skill_analysis["matched_skills"],
+                "missing_skills":
+                    skill_analysis["missing_skills"],
+                "recommendations":
+                    recommendations
             },
             status_code=200
         )
@@ -586,4 +655,4 @@ def analyze_resume():
         return error_response(
             str(e),
             500
-        )
+    )

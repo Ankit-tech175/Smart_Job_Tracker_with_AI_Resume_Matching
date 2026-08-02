@@ -116,10 +116,12 @@ def calculate_ats_score(
     ) * 100
 
     # Limit score
-    ats_score = min(
+    ats_score = float(
+    min(
         round(ats_score, 2),
         100
     )
+)
 
     return ats_score
 

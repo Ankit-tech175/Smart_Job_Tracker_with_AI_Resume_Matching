@@ -247,6 +247,18 @@ function logoutUser() {
 // FETCH USER JOBS
 // =========================
 
+function getStatusBadgeClass(status) {
+
+    const map = {
+        "Applied": "bg-primary",
+        "Interview": "bg-warning text-dark",
+        "Rejected": "bg-danger",
+        "Offer": "bg-success"
+    };
+
+    return map[status] || "bg-secondary";
+}
+
 async function fetchUserJobs() {
 
     const token =
@@ -301,7 +313,7 @@ async function fetchUserJobs() {
     <td>${job.job_title}</td>
 
     <td>
-        <span class="badge bg-primary">
+        <span class="badge ${getStatusBadgeClass(job.status)}">
             ${job.status}
         </span>
     </td>
@@ -1044,6 +1056,106 @@ let analyticsChart;
 // RENDER ANALYTICS CHART
 // =========================
 
+async function exportJobsCSV() {
+
+    try {
+
+        const token =
+            localStorage.getItem("access_token");
+
+        const response = await fetch(
+            "/api/jobs/export-csv",
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            alert("Failed to export jobs. Please try again.");
+            return;
+        }
+
+        const blob = await response.blob();
+
+        const downloadUrl =
+            window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = downloadUrl;
+        link.download = "job_applications.csv";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        window.URL.revokeObjectURL(downloadUrl);
+
+    } catch (error) {
+
+        console.error("Export error:", error);
+        alert("Something went wrong while exporting.");
+    }
+}
+
+let pipelineChartInstance = null;
+
+function renderPipelineDoughnutChart(data) {
+
+    const canvas =
+        document.getElementById("pipelineChartCanvas");
+
+    if (!canvas || typeof Chart === "undefined") {
+        return;
+    }
+
+    // Destroy the previous chart instance before
+    // redrawing, otherwise Chart.js stacks canvases
+    // on every analytics refresh.
+    if (pipelineChartInstance) {
+        pipelineChartInstance.destroy();
+    }
+
+    pipelineChartInstance = new Chart(canvas, {
+        type: "doughnut",
+        data: {
+            labels: ["Applied", "Interview", "Rejected", "Offer"],
+            datasets: [{
+                data: [
+                    data.applied_count || 0,
+                    data.interview_count || 0,
+                    data.rejected_count || 0,
+                    data.offer_count || 0
+                ],
+                backgroundColor: [
+                    "#4f46e5",
+                    "#f59e0b",
+                    "#ef4444",
+                    "#10b981"
+                ],
+                borderWidth: 2,
+                borderColor: "#ffffff"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        color: "#4b5563",
+                        font: { family: "Inter", weight: "600" }
+                    }
+                }
+            }
+        }
+    });
+}
+
 function renderAnalyticsChart(data) {
 
     const container =
@@ -1185,4 +1297,6 @@ function renderAnalyticsChart(data) {
 </div>
 
     `;
+
+    renderPipelineDoughnutChart(data);
 }

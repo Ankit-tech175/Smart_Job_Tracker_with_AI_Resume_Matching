@@ -1,0 +1,80 @@
+<svg viewBox="0 0 1000 760" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+
+  <rect x="0" y="0" width="1000" height="760" fill="#f7f8fc"/>
+
+  <text x="500" y="38" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">
+    System Architecture — Smart Job Tracker with AI Resume Matching
+  </text>
+
+  <!-- BROWSER LAYER -->
+  <rect x="330" y="65" width="340" height="70" rx="10" fill="#eef2ff" stroke="#4f46e5" stroke-width="2"/>
+  <text x="500" y="92" text-anchor="middle" font-size="14" font-weight="700" fill="#111827">Browser</text>
+  <text x="500" y="112" text-anchor="middle" font-size="12" fill="#4b5563">Jinja Templates + static/js/app.js (fetch API, JWT in localStorage)</text>
+
+  <line x1="500" y1="135" x2="500" y2="165" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="620" y="155" font-size="11.5" fill="#6b7280">Authorization: Bearer &lt;JWT&gt;</text>
+
+  <!-- FLASK APP LAYER -->
+  <rect x="280" y="168" width="440" height="66" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+  <text x="500" y="194" text-anchor="middle" font-size="14" font-weight="700" fill="#111827">Flask App — app.py → backend/__init__.py</text>
+  <text x="500" y="214" text-anchor="middle" font-size="12" fill="#4b5563">create_app() — App Factory Pattern</text>
+
+  <line x1="500" y1="234" x2="500" y2="260" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- BLUEPRINTS -->
+  <rect x="150" y="262" width="330" height="60" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+  <text x="315" y="286" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">auth_bp  →  /api/auth/*</text>
+  <text x="315" y="304" text-anchor="middle" font-size="11.5" fill="#4b5563">register · login · profile</text>
+
+  <rect x="520" y="262" width="330" height="60" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="2"/>
+  <text x="685" y="286" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">job_bp  →  /api/jobs/*</text>
+  <text x="685" y="304" text-anchor="middle" font-size="11.5" fill="#4b5563">add · my-jobs · update · delete · analytics · export-csv · resume analysis</text>
+
+  <!-- decorator note -->
+  <text x="685" y="340" text-anchor="middle" font-size="11" fill="#9ca3af" font-style="italic">All job_bp routes gated by @jwt_required()</text>
+
+  <line x1="315" y1="322" x2="315" y2="360" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="685" y1="322" x2="685" y2="360" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- MODELS / DB LAYER -->
+  <rect x="150" y="362" width="330" height="70" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+  <text x="315" y="388" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">SQLAlchemy Models</text>
+  <text x="315" y="406" text-anchor="middle" font-size="11.5" fill="#4b5563">User · JobApplication · ResumeAnalysis</text>
+  <text x="315" y="422" text-anchor="middle" font-size="11" fill="#4b5563">Alembic migrations track schema history</text>
+
+  <line x1="315" y1="432" x2="315" y2="460" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="215" y="462" width="200" height="50" rx="8" fill="#111827"/>
+  <text x="315" y="492" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">SQLite / Postgres</text>
+
+  <!-- NLP MODULE (branches off job_bp) -->
+  <line x1="685" y1="322" x2="685" y2="360" stroke="#374151" stroke-width="2"/>
+  <rect x="520" y="362" width="330" height="90" rx="10" fill="#f3e8ff" stroke="#a855f7" stroke-width="2"/>
+  <text x="685" y="386" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">NLP / ML Engine (self-contained)</text>
+  <text x="685" y="406" text-anchor="middle" font-size="11.5" fill="#4b5563">nlp/parser.py — PyPDF2 + spaCy skill extraction</text>
+  <text x="685" y="424" text-anchor="middle" font-size="11.5" fill="#4b5563">nlp/matcher.py — TF-IDF + cosine similarity ATS score</text>
+  <text x="685" y="442" text-anchor="middle" font-size="11.5" fill="#4b5563">nlp/skills.csv — curated 114-skill vocabulary</text>
+
+  <!-- UTILS -->
+  <rect x="150" y="530" width="700" height="60" rx="10" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="500" y="554" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">backend/utils/</text>
+  <text x="500" y="574" text-anchor="middle" font-size="11.5" fill="#4b5563">response.py (consistent {success, message, data} contract) · file_handler.py (upload validation)</text>
+
+  <line x1="315" y1="432" x2="500" y2="530" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="685" y1="452" x2="550" y2="530" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="500" y="610" text-anchor="middle" font-size="11" fill="#9ca3af">(used by both blueprints for consistent responses)</text>
+
+  <!-- Legend -->
+  <rect x="150" y="650" width="700" height="90" rx="10" fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5"/>
+  <text x="170" y="672" font-size="12" font-weight="700" fill="#111827">Key architectural decisions:</text>
+  <text x="170" y="692" font-size="11.5" fill="#4b5563">• Stateless JWT auth → horizontally scalable (no server-side session store)</text>
+  <text x="170" y="708" font-size="11.5" fill="#4b5563">• NLP engine is fully decoupled from Flask — reusable as a standalone module/CLI</text>
+  <text x="170" y="724" font-size="11.5" fill="#4b5563">• Every job_bp query is scoped by user_id from the JWT → per-user data isolation</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#374151"/>
+    </marker>
+  </defs>
+
+</svg>

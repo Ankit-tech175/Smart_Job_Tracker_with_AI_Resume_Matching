@@ -11,12 +11,18 @@
     >
 
     <title>
-        AI Job Tracker Dashboard
+        Smart Job Tracker | Dashboard
     </title>
 
     <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
         rel="stylesheet"
     >
 
@@ -36,25 +42,25 @@
          DASHBOARD HEADER
     ========================== -->
 
-    <div
-        class="d-flex flex-column flex-md-row
-        justify-content-between align-items-md-center
-        mb-5"
-    >
+    <div class="app-topbar">
 
-        <div>
+        <div class="app-brand">
 
-            <h1 class="fw-bold mb-2">
-                AI Job Tracker
-            </h1>
+            <div class="app-brand-icon">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
 
-            <p class="text-muted mb-0">
+            <div class="app-brand-text">
 
-                Track applications,
-                analyze resumes,
-                and improve ATS scores.
+                <h1>
+                    Smart Job Tracker
+                </h1>
 
-            </p>
+                <p>
+                    AI resume matching, job pipeline tracking, and ATS scoring.
+                </p>
+
+            </div>
 
         </div>
 
@@ -62,6 +68,7 @@
             class="btn btn-danger mt-3 mt-md-0 px-4"
             onclick="logoutUser()"
         >
+            <i class="bi bi-box-arrow-right me-1"></i>
             Logout
         </button>
 
@@ -80,6 +87,7 @@
             <div class="card analytics-card">
 
                 <h6 class="text-muted">
+                    <i class="bi bi-folder2-open me-1"></i>
                     Total Applications
                 </h6>
 
@@ -97,6 +105,7 @@
             <div class="card analytics-card">
 
                 <h6 class="text-muted">
+                    <i class="bi bi-send-check me-1"></i>
                     Applied
                 </h6>
 
@@ -114,6 +123,7 @@
             <div class="card analytics-card">
 
                 <h6 class="text-muted">
+                    <i class="bi bi-people-fill me-1"></i>
                     Interviews
                 </h6>
 
@@ -131,6 +141,7 @@
             <div class="card analytics-card">
 
                 <h6 class="text-muted">
+                    <i class="bi bi-trophy-fill me-1"></i>
                     Offers
                 </h6>
 
@@ -154,7 +165,8 @@
     <div class="mb-4">
 
         <h4 class="fw-bold mb-1">
-            📊 Application Pipeline
+            <i class="bi bi-bar-chart-line-fill"></i>
+            Application Pipeline
         </h4>
 
         <p class="text-muted mb-0">
@@ -163,9 +175,23 @@
 
     </div>
 
-    <div id="pipelineAnalytics">
+    <div class="row g-4 align-items-center">
 
-        <!-- Dynamic Content -->
+        <div class="col-md-7">
+
+            <div id="pipelineAnalytics">
+
+                <!-- Dynamic Content -->
+
+            </div>
+
+        </div>
+
+        <div class="col-md-5">
+
+            <canvas id="pipelineChartCanvas" height="220"></canvas>
+
+        </div>
 
     </div>
 
@@ -180,6 +206,7 @@
         <div class="mb-4">
 
             <h4 class="fw-bold mb-1">
+                <i class="bi bi-stars"></i>
                 AI Resume Analyzer
             </h4>
 
@@ -252,6 +279,7 @@
         <div class="mb-4">
 
             <h4 class="fw-bold mb-1">
+                <i class="bi bi-cloud-arrow-up-fill"></i>
                 Resume Upload
             </h4>
 
@@ -301,6 +329,7 @@
         <div class="mb-4">
 
             <h4 class="fw-bold mb-1">
+                <i class="bi bi-plus-circle-fill"></i>
                 Add Job Application
             </h4>
 
@@ -434,15 +463,28 @@
 
     <div class="card p-4">
 
-        <div class="mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
 
-            <h4 class="fw-bold mb-1">
-                My Job Applications
-            </h4>
+            <div>
 
-            <p class="text-muted mb-0">
-                Track and manage application progress
-            </p>
+                <h4 class="fw-bold mb-1">
+                    <i class="bi bi-table"></i>
+                    My Job Applications
+                </h4>
+
+                <p class="text-muted mb-0">
+                    Track and manage application progress
+                </p>
+
+            </div>
+
+            <button
+                class="btn btn-success mt-3 mt-md-0"
+                onclick="exportJobsCSV()"
+            >
+                <i class="bi bi-download me-1"></i>
+                Export CSV
+            </button>
 
         </div>
 

@@ -1,0 +1,83 @@
+<svg viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+
+  <rect x="0" y="0" width="1000" height="620" fill="#f7f8fc"/>
+
+  <text x="500" y="40" text-anchor="middle" font-size="17" font-weight="700" fill="#111827">
+    Entity Relationship Diagram — Smart Job Tracker with AI Resume Matching
+  </text>
+
+  <!-- USERS TABLE -->
+  <g>
+    <rect x="60" y="90" width="260" height="230" rx="10" fill="#ffffff" stroke="#4f46e5" stroke-width="2"/>
+    <rect x="60" y="90" width="260" height="38" rx="10" fill="#4f46e5"/>
+    <rect x="60" y="112" width="260" height="16" fill="#4f46e5"/>
+    <text x="190" y="115" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">USERS</text>
+
+    <text x="75" y="152" font-size="13" fill="#111827" font-weight="700">PK  id : Integer</text>
+    <text x="75" y="176" font-size="13" fill="#111827">username : String(80) UNIQUE</text>
+    <text x="75" y="200" font-size="13" fill="#111827">email : String(120) UNIQUE</text>
+    <text x="75" y="224" font-size="13" fill="#111827">password : String(255)</text>
+    <text x="75" y="248" font-size="13" fill="#111827">created_at : DateTime</text>
+    <text x="75" y="290" font-size="11.5" fill="#6b7280" font-style="italic">Hashed password (never plaintext)</text>
+  </g>
+
+  <!-- JOB APPLICATIONS TABLE -->
+  <g>
+    <rect x="390" y="60" width="280" height="270" rx="10" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
+    <rect x="390" y="60" width="280" height="38" rx="10" fill="#10b981"/>
+    <rect x="390" y="82" width="280" height="16" fill="#10b981"/>
+    <text x="530" y="85" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">JOB_APPLICATIONS</text>
+
+    <text x="405" y="122" font-size="13" fill="#111827" font-weight="700">PK  id : Integer</text>
+    <text x="405" y="146" font-size="13" fill="#111827" font-weight="700">FK  user_id : Integer</text>
+    <text x="405" y="170" font-size="13" fill="#111827">company_name : String</text>
+    <text x="405" y="194" font-size="13" fill="#111827">job_title : String</text>
+    <text x="405" y="218" font-size="13" fill="#111827">job_link : String (nullable)</text>
+    <text x="405" y="242" font-size="13" fill="#111827">status : String (default "Applied")</text>
+    <text x="405" y="266" font-size="13" fill="#111827">notes : Text (nullable)</text>
+    <text x="405" y="290" font-size="13" fill="#111827">created_at : DateTime</text>
+    <text x="405" y="315" font-size="11.5" fill="#6b7280" font-style="italic">status ∈ {Applied, Interview, Rejected, Offer}</text>
+  </g>
+
+  <!-- RESUME ANALYSES TABLE -->
+  <g>
+    <rect x="730" y="90" width="230" height="270" rx="10" fill="#ffffff" stroke="#f59e0b" stroke-width="2"/>
+    <rect x="730" y="90" width="230" height="38" rx="10" fill="#f59e0b"/>
+    <rect x="730" y="112" width="230" height="16" fill="#f59e0b"/>
+    <text x="845" y="115" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">RESUME_ANALYSES</text>
+
+    <text x="745" y="152" font-size="13" fill="#111827" font-weight="700">PK  id : Integer</text>
+    <text x="745" y="176" font-size="13" fill="#111827" font-weight="700">FK  user_id : Integer</text>
+    <text x="745" y="200" font-size="13" fill="#111827">ats_score : Float</text>
+    <text x="745" y="224" font-size="13" fill="#111827">matched_skills : Text</text>
+    <text x="745" y="248" font-size="13" fill="#111827">missing_skills : Text</text>
+    <text x="745" y="272" font-size="13" fill="#111827">recommendations : Text</text>
+    <text x="745" y="296" font-size="13" fill="#111827">created_at : DateTime</text>
+    <text x="745" y="335" font-size="11.5" fill="#6b7280" font-style="italic">Skill lists stored as</text>
+    <text x="745" y="350" font-size="11.5" fill="#6b7280" font-style="italic">delimited strings, not JSON</text>
+  </g>
+
+  <!-- RELATIONSHIP LINES -->
+  <line x1="320" y1="205" x2="390" y2="195" stroke="#374151" stroke-width="2"/>
+  <text x="335" y="190" font-size="18" fill="#374151" font-weight="700">1</text>
+  <text x="365" y="190" font-size="18" fill="#374151" font-weight="700">∞</text>
+
+  <line x1="670" y1="195" x2="730" y2="225" stroke="#374151" stroke-width="2"/>
+  <text x="685" y="200" font-size="18" fill="#374151" font-weight="700">1</text>
+  <text x="705" y="220" font-size="18" fill="#374151" font-weight="700">∞</text>
+
+  <!-- Direct User -> ResumeAnalysis relationship (bypassing visual clutter, drawn as curve) -->
+  <path d="M 320 260 C 500 480, 700 480, 745 355" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="500" y="500" text-anchor="middle" font-size="13" fill="#6b7280">
+    Users(1) ────── ResumeAnalyses(∞)  — direct FK relationship
+  </text>
+
+  <text x="500" y="580" text-anchor="middle" font-size="13" fill="#6b7280">
+    Cascade rule: deleting a User deletes all their JobApplications and ResumeAnalyses (cascade="all, delete-orphan")
+  </text>
+
+  <text x="500" y="600" text-anchor="middle" font-size="12" fill="#9ca3af">
+    Note: only USERS and JOB_APPLICATIONS have Alembic migrations checked in prior to this update — RESUME_ANALYSES migration added Aug 2026.
+  </text>
+
+</svg>
